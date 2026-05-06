@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ShopEasy</title>
+<link rel="stylesheet" href="style.css">
+
+<script src="config.js"></script>
+<script>
+if (localStorage.getItem("loggedIn") !== "true") {
+    window.location.href = "login.html";
+}
+</script>
+</head>
+
+<body>
+
+<header class="top-header">
+    <h1>🛒 ShopEasy</h1>
+
+    <div class="header-right">
+        <div class="cart-info">
+            🧺 Items: <span id="cart-count">0</span>
+        </div>
+        <button class="logout-btn" onclick="logout()">Logout</button>
+    </div>
+</header>
+
+<main>
+
+<!-- 🔍 Sidebar -->
+<aside class="sidebar">
+    <h3>🔍 Search</h3>
+    <input type="text" id="search" placeholder="Search products..." onkeyup="searchProducts()">
+</aside>
+
+<!-- 🛍 Products -->
+<section class="products" id="product-list"></section>
+
+<!-- 🛒 Cart -->
+<section class="cart">
+    <h2>Your Cart</h2>
+    <div id="cart-items"></div>
+
+    <div class="cart-footer">
+        <h3>Total: ₹<span id="total-price">0</span></h3>
+
+        <button class="clear-btn" onclick="clearCart()">Clear Cart</button>
+
+        <a href="checkout.html">
+            <button class="checkout-btn">Checkout</button>
+        </a>
+    </div>
+</section>
+
+</main>
+
+<!-- ➕ Floating Admin Button -->
+<a href="admin.html" class="fab">＋</a>
+
+<script src="script.js"></script>
+</body>
+</html>

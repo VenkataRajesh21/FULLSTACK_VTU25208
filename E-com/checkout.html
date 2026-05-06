@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Checkout</title>
+<script>
+if (localStorage.getItem("loggedIn") !== "true") {
+    window.location.href = "login.html";
+}
+</script>
+<style>
+* {
+    box-sizing: border-box;
+    font-family: "Segoe UI", Arial, sans-serif;
+}
+
+body {
+    background: #f4f6fb;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.checkout-box {
+    background: white;
+    width: 420px;
+    padding: 30px;
+    border-radius: 18px;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.2);
+}
+
+.checkout-box h2 {
+    text-align: center;
+    color: #1e2a78;
+    margin-bottom: 20px;
+}
+
+.checkout-box input {
+    width: 100%;
+    padding: 12px;
+    margin: 10px 0;
+    border-radius: 10px;
+    border: 1px solid #ccc;
+}
+
+.summary {
+    background: #f4f6fb;
+    padding: 15px;
+    border-radius: 12px;
+    margin-top: 15px;
+}
+
+.summary p {
+    display: flex;
+    justify-content: space-between;
+    margin: 6px 0;
+}
+
+.checkout-box button {
+    width: 100%;
+    margin-top: 20px;
+    padding: 14px;
+    background: linear-gradient(135deg, #1db954, #1aa34a);
+    color: white;
+    border: none;
+    border-radius: 30px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+@media (max-width: 500px) {
+    .checkout-box {
+        width: 95%;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="checkout-box">
+    <h2>Checkout</h2>
+
+    <input id="custName" placeholder="Full Name">
+    <input id="custAddress" placeholder="Delivery Address">
+    <input id="custPhone" placeholder="Phone Number">
+
+    <div class="summary" id="summary"></div>
+
+    <button onclick="placeOrder()">Place Order</button>
+</div>
+
+<script>
+const cart = JSON.parse(localStorage.getItem("cart")) || [];
+const summaryDiv = document.getElementById("summary");
+
+/* ORDER SUMMARY */
+let total = 0;
+summaryDiv.innerHTML = "<b>Order Summary</b>";
+
+cart.forEach(item => {
+    total += item.price * item.qty;
+    summaryDiv.innerHTML += `
+        <p>
+            <span>${item.name} x ${item.qty}</span>
+            <span>₹${item.price * item.qty}</span>
+        </p>
+    `;
+});
+
+summaryDiv.innerHTML += `
+    <hr>
+    <p><b>Total</b><b>₹${total}</b></p>
+`;
+
+function reduceStockAfterOrder(orderItems) {
+    let adminProducts = JSON.parse(localStorage.getItem("products")) || [];
+
+    orderItems.forEach(orderItem => {
+        const product = adminProducts.find(p => p.id === orderItem.id);
+        if (product) {
+            product.stock -= orderItem.qty;
+            if (product.stock < 0) product.stock = 0;
+        }
+    });
+
+    localStorage.setItem("products", JSON.stringify(adminProducts));
+}
+/* PLACE ORDER */
+function placeOrder() {
+    const name = document.getElementById("custName").value.trim();
+    const address = document.getElementById("custAddress").value.trim();
+    const phone = document.getElementById("custPhone").value.trim();
+
+    if (!name || !address || !phone) {
+        alert("Please fill all details");
+        return;
+    }
+
+    const order = {
+        customer: { name, address, phone },
+        items: cart,
+        total,
+        date: new Date().toLocaleString()
+    };
+
+    // ✅ REDUCE STOCK HERE
+    reduceStockAfterOrder(cart);
+
+    localStorage.setItem("order", JSON.stringify(order));
+    localStorage.removeItem("cart");
+
+    window.location.href = "invoice.html";
+}
+</script>
+
+</body>
+</html>

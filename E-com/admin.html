@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Admin Panel</title>
+
+<style>
+* {
+    box-sizing: border-box;
+    font-family: "Segoe UI", Arial, sans-serif;
+}
+
+body {
+    background: #f4f6fb;
+    padding: 30px;
+}
+
+h2 {
+    text-align: center;
+    color: #1e2a78;
+    margin-bottom: 20px;
+}
+
+/* FORM */
+.form-box {
+    max-width: 450px;
+    background: white;
+    margin: auto;
+    padding: 25px;
+    border-radius: 18px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+}
+
+.form-box input {
+    width: 100%;
+    padding: 12px;
+    margin: 8px 0;
+    border-radius: 10px;
+    border: 1px solid #ccc;
+}
+
+.form-box button {
+    width: 100%;
+    padding: 12px;
+    border-radius: 25px;
+    border: none;
+    background: #1e2a78;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+/* PRODUCT LIST */
+.product-list {
+    max-width: 900px;
+    margin: 40px auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 20px;
+}
+
+.product {
+    background: white;
+    padding: 15px;
+    border-radius: 16px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+}
+
+.product img {
+    width: 100%;
+    height: 140px;
+    object-fit: contain;
+    margin-bottom: 10px;
+}
+
+.btns {
+    display: flex;
+    gap: 10px;
+}
+
+.edit {
+    background: orange;
+    border: none;
+    padding: 8px;
+    border-radius: 8px;
+    cursor: pointer;
+    flex: 1;
+}
+
+.danger {
+    background: crimson;
+    color: white;
+    border: none;
+    padding: 8px;
+    border-radius: 8px;
+    cursor: pointer;
+    flex: 1;
+}
+</style>
+</head>
+
+<body>
+
+<h2>Admin – Product Management</h2>
+
+<div class="form-box">
+    <input id="pname" placeholder="Product Name">
+    <input id="pprice" type="number" placeholder="Price">
+    <input id="pstock" type="number" placeholder="Stock">
+    <input id="pimage" placeholder="Image URL (images/item.webp)">
+    <button onclick="saveProduct()">Save Product</button>
+</div>
+
+<div class="product-list" id="admin-products"></div>
+
+<script>
+const adminProductsDiv = document.getElementById("admin-products");
+let products = JSON.parse(localStorage.getItem("products")) || [];
+let editId = null;
+
+/* SAVE TO STORAGE */
+function saveToStorage() {
+    localStorage.setItem("products", JSON.stringify(products));
+    renderProducts();
+}
+
+/* ADD / UPDATE PRODUCT */
+function saveProduct() {
+    const name = pname.value.trim();
+    const price = Number(pprice.value);
+    const stock = Number(pstock.value);
+
+    if (!name || price <= 0 || stock < 0) {
+        alert("Enter valid product details");
+        return;
+    }
+
+    if (editId) {
+        // UPDATE
+        const p = products.find(p => p.id === editId);
+        p.name = name;
+        p.price = price;
+        p.stock = stock;
+        p.image = pimage.value || "images/no-image.png";
+        editId = null;
+    } else {
+        // ADD
+        products.push({
+            id: Date.now(),
+            name,
+            price,
+            stock,
+            image: pimage.value || "images/no-image.png"
+        });
+    }
+
+    pname.value = pprice.value = pstock.value = pimage.value = "";
+    saveToStorage();
+}
+
+/* DELETE */
+function deleteProduct(id) {
+    if (!confirm("Delete this product?")) return;
+    products = products.filter(p => p.id !== id);
+    saveToStorage();
+}
+
+/* EDIT */
+function editProduct(id) {
+    const p = products.find(p => p.id === id);
+    pname.value = p.name;
+    pprice.value = p.price;
+    pstock.value = p.stock;
+    pimage.value = p.image;
+    editId = id;
+}
+
+/* RENDER */
+function renderProducts() {
+    adminProductsDiv.innerHTML = "";
+
+    if (products.length === 0) {
+        adminProductsDiv.innerHTML = "<p style='text-align:center'>No products added.</p>";
+        return;
+    }
+
+    products.forEach(p => {
+        adminProductsDiv.innerHTML += `
+            <div class="product">
+                <img src="${p.image}" onerror="this.src='images/no-image.png'">
+                <h4>${p.name}</h4>
+                <p>₹${p.price} | Stock: ${p.stock}</p>
+                <div class="btns">
+                    <button class="edit" onclick="editProduct(${p.id})">Edit</button>
+                    <button class="danger" onclick="deleteProduct(${p.id})">Delete</button>
+                </div>
+            </div>
+        `;
+    });
+}
+
+renderProducts();
+</script>
+
+</body>
+</html>
