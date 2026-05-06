@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anti-Gravity | Defy Recruitment Limits</title>
+    <meta name="description" content="A next-generation job portal breaking down the barriers of traditional recruitment.">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="floating-shape shape-1"></div>
+    <div class="floating-shape shape-2"></div>
+
+    <header class="container">
+        <nav class="navbar animate-up">
+            <a href="index.html" class="logo">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="var(--accent-secondary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Anti<span>Gravity</span>
+            </a>
+            <div class="nav-links" id="nav-auth">
+                <!-- Dynamically populated by main.js -->
+            </div>
+        </nav>
+    </header>
+
+    <main class="container">
+        <section style="min-height: 70vh; display: flex; align-items: center; justify-content: space-between; gap: 4rem;">
+            <div style="flex: 1;" class="animate-up delay-1">
+                <h1>Defy the Gravity of Traditional Hiring.</h1>
+                <p style="font-size: 1.2rem; margin-bottom: 2rem; max-width: 500px;">
+                    Experience a fluid, frictionless ecosystem where talent meets opportunity. 
+                    No geographic limits, no outdated processes. Just pure potential.
+                </p>
+                <div style="display: flex; gap: 1rem;">
+                    <a href="register.html?role=seeker" class="btn btn-primary">Find a Job</a>
+                    <a href="register.html?role=employer" class="btn btn-secondary">Post a Job</a>
+                </div>
+            </div>
+            
+            <div style="flex: 1; position: relative;" class="animate-up delay-2">
+                <div class="glass-panel" style="position: relative; z-index: 2; transform: rotate(-2deg);">
+                    <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+                        <div style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));"></div>
+                        <div>
+                            <h3 style="margin: 0; font-size: 1rem;">Senior Frontend Developer</h3>
+                            <span style="color: var(--accent-secondary); font-size: 0.8rem;">TechNova Inc.</span>
+                        </div>
+                    </div>
+                    <p style="font-size: 0.9rem;">Looking for a visionary developer to build gravity-defying user interfaces.</p>
+                    <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
+                        <span style="background: rgba(255,255,255,0.1); padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.75rem;">Remote</span>
+                        <span style="background: rgba(255,255,255,0.1); padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.75rem;">Full-time</span>
+                    </div>
+                </div>
+                
+                <div class="glass-panel" style="position: absolute; top: -30px; right: -20px; z-index: 1; transform: rotate(5deg) scale(0.9); opacity: 0.7; width: 100%;">
+                    <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+                        <div style="width: 40px; height: 40px; border-radius: 50%; background: #a29bfe;"></div>
+                        <div>
+                            <h3 style="margin: 0; font-size: 1rem;">UX Designer</h3>
+                            <span style="color: var(--text-secondary); font-size: 0.8rem;">Creative Studio</span>
+                        </div>
+                    </div>
+                    <p style="font-size: 0.9rem;">Design experiences that feel weightless.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="js/main.js"></script>
+</body>
+</html>

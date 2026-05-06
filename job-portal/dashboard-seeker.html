@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seeker Dashboard | Anti-Gravity</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="floating-shape shape-1" style="opacity: 0.1;"></div>
+
+    <header class="container">
+        <nav class="navbar">
+            <a href="index.html" class="logo">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="var(--accent-secondary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Anti<span>Gravity</span>
+            </a>
+            <div class="nav-links">
+                <span id="userEmail" style="color: var(--text-secondary); margin-right: 1rem;"></span>
+                <a href="#" onclick="logout()" class="btn btn-secondary" style="padding: 0.5rem 1rem; border-radius: 8px;">Logout</a>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container animate-up">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+            <h2>Available Opportunities</h2>
+        </div>
+
+        <div id="jobs-container" class="job-grid">
+            <p>Loading opportunities...</p>
+        </div>
+
+        <h2 style="margin-top: 4rem; margin-bottom: 2rem;">Your Applications</h2>
+        <div id="apps-container" class="glass-panel" style="padding: 1rem;">
+            <p>Loading applications...</p>
+        </div>
+    </main>
+
+    <script src="js/main.js"></script>
+    <script>
+        const user = checkAuth('seeker');
+        if (user) {
+            document.getElementById('userEmail').textContent = user.email;
+            loadJobs();
+            loadApplications();
+        }
+
+        async function loadJobs() {
+            const jobs = await apiCall('jobs.php');
+            const container = document.getElementById('jobs-container');
+            
+            if (jobs.error) {
+                container.innerHTML = `<p style="color: #ff7675;">Error: ${jobs.error}</p>`;
+                return;
+            }
+
+            if (jobs.length === 0) {
+                container.innerHTML = '<p>No open positions at the moment.</p>';
+                return;
+            }
+
+            container.innerHTML = jobs.map(job => `
+                <div class="glass-panel job-card">
+                    <div>
+                        <h3 class="job-title">${job.title}</h3>
+                        <div class="job-company">${job.company_name}</div>
+                        <div class="job-meta">
+                            <span>📍 ${job.location || 'Remote'}</span>
+                            <span>🕒 ${new Date(job.created_at).toLocaleDateString()}</span>
+                        </div>
+                        <p style="font-size: 0.9rem;">${job.description.substring(0, 100)}...</p>
+                    </div>
+                    <div class="job-actions">
+                        <button onclick="applyJob(${job.id})" class="btn btn-primary" style="width: 100%; padding: 0.8rem;">Apply Now</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function applyJob(jobId) {
+            const res = await apiCall('applications.php', 'POST', {
+                job_id: jobId,
+                seeker_id: user.id
+            });
+            if (res.error) {
+                alert(res.error);
+            } else {
+                alert('Successfully applied!');
+                loadApplications();
+            }
+        }
+
+        async function loadApplications() {
+            const apps = await apiCall(`applications.php?seeker_id=${user.id}`);
+            const container = document.getElementById('apps-container');
+            
+            if (apps.error) {
+                container.innerHTML = `<p>Error: ${apps.error}</p>`;
+                return;
+            }
+
+            if (apps.length === 0) {
+                container.innerHTML = '<p>You haven\'t applied to any jobs yet.</p>';
+                return;
+            }
+
+            container.innerHTML = `
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="border-bottom: 1px solid var(--glass-border); text-align: left;">
+                            <th style="padding: 1rem;">Job Title</th>
+                            <th style="padding: 1rem;">Company</th>
+                            <th style="padding: 1rem;">Date Applied</th>
+                            <th style="padding: 1rem;">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${apps.map(app => `
+                            <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                                <td style="padding: 1rem;">${app.title}</td>
+                                <td style="padding: 1rem; color: var(--accent-secondary);">${app.company_name}</td>
+                                <td style="padding: 1rem;">${new Date(app.applied_at).toLocaleDateString()}</td>
+                                <td style="padding: 1rem;">
+                                    <span style="background: rgba(255,255,255,0.1); padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.8rem; text-transform: capitalize;">
+                                        ${app.status}
+                                    </span>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+    </script>
+</body>
+</html>

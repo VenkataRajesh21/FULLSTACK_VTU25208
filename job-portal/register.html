@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register | Anti-Gravity</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body style="display: flex; align-items: center; justify-content: center; padding: 2rem 0;">
+    <div class="floating-shape shape-1" style="left: auto; right: -100px;"></div>
+    <div class="floating-shape shape-2" style="bottom: 0; left: -100px;"></div>
+
+    <div class="glass-panel animate-up" style="width: 100%; max-width: 450px; padding: 3rem;">
+        <div style="text-align: center; margin-bottom: 2rem;">
+            <a href="index.html" class="logo" style="justify-content: center; margin-bottom: 1rem;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="var(--accent-secondary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Anti<span>Gravity</span>
+            </a>
+            <h2>Join the Ecosystem</h2>
+            <p>Create your account to break boundaries</p>
+        </div>
+
+        <form id="registerForm">
+            <div id="error-msg" style="color: #ff7675; margin-bottom: 1rem; text-align: center; font-size: 0.9rem;"></div>
+            
+            <div class="input-group" style="display: flex; gap: 1rem;">
+                <div style="flex: 1;">
+                    <input type="radio" id="roleSeeker" name="role" value="seeker" style="display: none;" checked>
+                    <label for="roleSeeker" class="role-btn active" style="display: block; padding: 1rem; text-align: center; border: 1px solid var(--accent-primary); border-radius: 12px; cursor: pointer; transition: all 0.3s;">I'm looking for a job</label>
+                </div>
+                <div style="flex: 1;">
+                    <input type="radio" id="roleEmployer" name="role" value="employer" style="display: none;">
+                    <label for="roleEmployer" class="role-btn" style="display: block; padding: 1rem; text-align: center; border: 1px solid var(--glass-border); border-radius: 12px; cursor: pointer; transition: all 0.3s;">I'm hiring</label>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label id="nameLabel" for="name">Full Name</label>
+                <input type="text" id="name" required placeholder="John Doe">
+            </div>
+
+            <div class="input-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" required placeholder="you@example.com">
+            </div>
+            
+            <div class="input-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" required placeholder="••••••••">
+            </div>
+            
+            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Create Account</button>
+        </form>
+        
+        <p style="text-align: center; margin-top: 2rem; font-size: 0.9rem;">
+            Already have an account? <a href="login.html" style="color: var(--accent-secondary); text-decoration: none;">Login</a>
+        </p>
+    </div>
+
+    <style>
+        .role-btn.active {
+            background: rgba(108, 92, 231, 0.2);
+            border-color: var(--accent-primary) !important;
+            color: white;
+        }
+    </style>
+
+    <script src="js/main.js"></script>
+    <script>
+        // Check URL for role pre-selection
+        const urlParams = new URLSearchParams(window.location.search);
+        const roleParam = urlParams.get('role');
+        if (roleParam === 'employer') {
+            document.getElementById('roleEmployer').checked = true;
+        }
+
+        const roleInputs = document.querySelectorAll('input[name="role"]');
+        const roleLabels = document.querySelectorAll('.role-btn');
+        const nameLabel = document.getElementById('nameLabel');
+
+        function updateRoleUI() {
+            roleLabels.forEach(label => label.classList.remove('active'));
+            const selected = document.querySelector('input[name="role"]:checked');
+            document.querySelector(`label[for="${selected.id}"]`).classList.add('active');
+            
+            if (selected.value === 'employer') {
+                nameLabel.textContent = 'Company Name';
+                document.getElementById('name').placeholder = 'Acme Corp';
+            } else {
+                nameLabel.textContent = 'Full Name';
+                document.getElementById('name').placeholder = 'John Doe';
+            }
+        }
+
+        roleInputs.forEach(input => input.addEventListener('change', updateRoleUI));
+        updateRoleUI();
+
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const role = document.querySelector('input[name="role"]:checked').value;
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const errorMsg = document.getElementById('error-msg');
+            
+            const btn = e.target.querySelector('button');
+            btn.textContent = 'Creating...';
+            btn.disabled = true;
+
+            const res = await apiCall('auth.php', 'POST', { action: 'register', role: role, name: name, email: email, password: password });
+            
+            if (res.error) {
+                errorMsg.textContent = res.error;
+                btn.textContent = 'Create Account';
+                btn.disabled = false;
+            } else if (res.user_id) {
+                // Auto login after register
+                const loginRes = await apiCall('auth.php', 'POST', { action: 'login', email: email, password: password });
+                if (loginRes.user) {
+                    localStorage.setItem('ag_user', JSON.stringify(loginRes.user));
+                    window.location.href = loginRes.user.role === 'seeker' ? 'dashboard-seeker.html' : 'dashboard-employer.html';
+                }
+            }
+        });
+    </script>
+</body>
+</html>
